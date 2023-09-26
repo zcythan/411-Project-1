@@ -3,7 +3,8 @@ class FeatExt:
     def __init__(self, name):
         self.__fileName = name
 
-    def __interpret(self, line):
+    @staticmethod
+    def __interpret(line):
         for i, char in enumerate(line):
             if char == '.' and (i + 1 < len(line)) and line[i+1] != " ":
                 j = i
