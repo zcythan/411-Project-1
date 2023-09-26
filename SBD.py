@@ -4,41 +4,63 @@ class FeatExt:
         self.__fileName = name
 
     @staticmethod
-    def __interpret(line):
+    def __interpret(line, nextLine):
+        vector = ["null", "null", 0, 0, 0]
         for i, char in enumerate(line):
-            if char == '.' and (i + 1 < len(line)) and line[i+1] != " ":
-                j = i
+            if char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
+                j = i - 1
                 val = ""
                 #Builds left side of period
                 while j >= 0:
                     if line[j] == " ":
+                        vector[0] = val
                         break
                     val = line[j] + val
-                    j -= 1
-                #Builds right
-                j = i+1
-                while j < len(line):
-                    if line[j] == " ":
-                        return "Not Good: " + val
-                    val = val + line[j]
-                    j += 1
-            elif char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
-                j = i
+                    j = j - 1
+                j = 0
                 val = ""
-                while j >= 0:
-                    if line[j] == " ":
-                        return "Good: " + val
-                    val = line[j] + val
-                    j -= 1
+                prevCh = ''
+                for ch in nextLine:
+                    if ch == " " and prevCh.isalpha():
+                        vector[1] = val
+                        break
+                    if not ch.isalpha():
+                        continue
+                    val = val + nextLine[j]
+                    j = j + 1
+                    prevCh = ch
 
-        return "Rip: " + line
+            #elif char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
+        if len(vector[0]) < 3:
+            vector[2] = 1
+        else:
+            vector[2] = 0
+        if vector[0] and vector[0][0].isupper():
+            vector[3] = 1
+        if vector[0] and vector[1][0].isupper():
+            vector[4] = 1
+
+        vectorStr = ""
+        for i, var in enumerate(vector):
+            if type(var) is int:
+                vectorStr += str(var) + "; "
+                continue
+            vectorStr += var + "; "
+
+        return vectorStr
 
     def readFile(self):
         with open(self.__fileName, 'r') as file:
             with open('SBD.answers', 'w') as out:
+                prevLine = ""
+                check = False
                 for line in file:
+                    if check:
+                        out.write(self.__interpret(prevLine, line) + '\n')
+                        check = False
                     if '.' in line and "TOK" not in line:
-                        out.write(self.__interpret(line) + '\n')
+                        prevLine = line
+                        check = True
 
 class AccCalc:
     def __init__(self):
