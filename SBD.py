@@ -131,16 +131,17 @@ class AccCalc:
 
 def main():
     print("Hello world")
-    extractor = FeatExt("SBD.train")
-    featureVectors = extractor.readFile()
-    featureLabels = extractor.getLabels
+    extractorTrain = FeatExt("SBD.train")
+    extractorTest = FeatExt("SBD.test")
+    featureVectorsTrain = extractorTrain.readFile()
+    featureLabelsTrain = extractorTrain.getLabels
+    featureLabelsTest = extractorTest.readFile()
     magicTree = DecisionTreeClassifier()
-    magicTree.fit(featureVectors, featureLabels)
+    magicTree.fit(featureVectorsTrain, featureLabelsTrain)
 
     #needs to take in one at a time and will return an integer
-    #prediction = magicTree.predict(testdata)
-
-    print(len(extractor.readFile()))
+    #prediction = magicTree.predict(featureLabelsTest[0])
+    #print("Prediction: " + str(prediction))
 
 
 if __name__ == "__main__":
