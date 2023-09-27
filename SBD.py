@@ -129,8 +129,21 @@ class FeatExt:
         return self.__featVectors
 
 class AccCalc:
-    def __init__(self):
-        self.x = 0
+    def __init__(self, pred, ans):
+        self.__predictions = pred
+        self.__answers = ans
+
+    def getAccuracy(self):
+        correct = 0
+        wrong = 0;
+
+        for i, num in enumerate(self.__predictions):
+            if str(num).isdigit() and num == self.__answers[i]:
+                correct += 1
+            else:
+                wrong += 1
+
+        return format((correct / (correct+wrong)) * 100 , '.2f')
 
 def main():
     print("Hello world")
@@ -141,12 +154,16 @@ def main():
     featureLabelsTest = extractorTest.readFile()
     magicTree = DecisionTreeClassifier()
     magicTree.fit(featureVectorsTrain, featureLabelsTrain)
-
-    #needs to take in one at a time and will return an integer
-    prediction = magicTree.predict(featureLabelsTest)
+    prediction = magicTree.predict(featureLabelsTest).tolist()
+    acc = AccCalc(prediction, extractorTest.getLabels)
+    print(acc.getAccuracy() + "%")
     with open('Predict.answers', 'w') as out:
         for i in prediction:
-            out.write(i + "\n")
+            out.write(str(i) + "\n")
+
+    with open('Real.Answers', 'w') as out:
+        for label in extractorTest.getLabels:
+            out.write(str(label) + "\n")
 
 
 if __name__ == "__main__":
