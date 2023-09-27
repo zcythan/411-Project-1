@@ -7,7 +7,7 @@ class FeatExt:
         self.__featLabels = []
 
     @staticmethod
-    def __analyzeRL(vectorRL, boolz):
+    def __analyzeRL(vectorRL):
         # Abbreviation means it do not in fact be da end of da sentence
         abbrev = ["Dr", "Rep", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
         # [Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
@@ -27,38 +27,9 @@ class FeatExt:
             if abr in vector[0]:
                 vector[7] = 1
 
-        #Gonna see if just using ASCII representation is good enough.
+        #The modulo is important, my first attempt was generating numbers that exceeded the 32 bit limit. lol.
         vector[0] = hash(vector[0]) % (2 ** 31)
         vector[1] = hash(vector[1]) % (2 ** 31)
-        '''
-        intL = ""
-        intR = ""
-
-        for char in vector[0]:
-            temp = ord(char)
-            intL = intL + str(temp)
-        if intL.isdigit():
-            vector[0] = int(intL)
-        else:
-            vector[0] = 0
-
-        for char in vector[1]:
-            temp = ord(char)
-            intR = intR + str(temp)
-        if intR.isdigit():
-            vector[1] = int(intR)
-        else:
-            vector[1] = 0
-        '''
-        if boolz:
-            vectorStr = ""
-            for i, var in enumerate(vector):
-                if type(var) is int:
-                    vectorStr += str(var) + "; "
-                    continue
-                vectorStr += str(var) + "; "
-
-            return vectorStr
         return vector
 
     @staticmethod
@@ -98,35 +69,29 @@ class FeatExt:
 
         return vector
 
-    @property
-    def getLabels(self):
-        return self.__featLabels
-
     def readFile(self):
         with open(self.__fileName, 'r') as file:
-            with open('SBD.answers', 'w') as out:
-                prevLine = ""
-                check = False
-                #checking to see if TOK line may have word after period in it.
-                for line in file:
-                    skip = True
-                    chkLine = line.replace("TOK", "")
-                    for char in chkLine:
-                        if char.isalpha():
-                            skip = False
-                            break
-                    if skip:
-                        continue
-                    if check:
-                        out.write(str(self.__outcome(prevLine)) + " " + self.__analyzeRL(self.__extractRL(prevLine, line), True) + '\n')
-                        self.__featVectors.append(self.__analyzeRL(self.__extractRL(prevLine, line), False))
-                        self.__featLabels.append(self.__outcome(prevLine))
-                        check = False
-                    if '.' in line and "TOK" not in line:
-                        prevLine = line
-                        check = True
+            prevLine = ""
+            check = False
+            # checking to see if TOK line may have word after period in it.
+            for line in file:
+                skip = True
+                chkLine = line.replace("TOK", "")
+                for char in chkLine:
+                    if char.isalpha():
+                        skip = False
+                        break
+                if skip:
+                    continue
+                if check:
+                    self.__featVectors.append(self.__analyzeRL(self.__extractRL(prevLine, line)))
+                    self.__featLabels.append(self.__outcome(prevLine))
+                    check = False
+                if '.' in line and "TOK" not in line:
+                    prevLine = line
+                    check = True
 
-        return self.__featVectors
+        return self.__featVectors, self.__featLabels
 
 class AccCalc:
     def __init__(self, pred, ans):
@@ -146,24 +111,37 @@ class AccCalc:
         return format((correct / (correct+wrong)) * 100 , '.2f')
 
 def main():
-    print("Hello world")
     extractorTrain = FeatExt("SBD.train")
     extractorTest = FeatExt("SBD.test")
-    featureVectorsTrain = extractorTrain.readFile()
-    featureLabelsTrain = extractorTrain.getLabels
-    featureLabelsTest = extractorTest.readFile()
+    #Extract vectors and labels from training data
+    featureVectorsTrain, featureLabelsTrain = extractorTrain.readFile()
+    #Extract vectors and labels from testing data
+    featureVectorsTest, featureLabelsTest = extractorTest.readFile()
     magicTree = DecisionTreeClassifier()
+    #Train the tree with feat. vectors from train and the known good labels.
     magicTree.fit(featureVectorsTrain, featureLabelsTrain)
-    prediction = magicTree.predict(featureLabelsTest).tolist()
-    acc = AccCalc(prediction, extractorTest.getLabels)
-    print(acc.getAccuracy() + "%")
+    prediction = magicTree.predict(featureVectorsTest).tolist()
+    #Compare our predicted labels with the actual labels from test.
+    acc = AccCalc(prediction, featureLabelsTest)
+    print(acc.getAccuracy() + "% correct")
+
+    #Stuff that will be removed before submission
     with open('Predict.answers', 'w') as out:
         for i in prediction:
             out.write(str(i) + "\n")
 
     with open('Real.Answers', 'w') as out:
-        for label in extractorTest.getLabels:
+        for label in featureLabelsTest:
             out.write(str(label) + "\n")
+
+    with open('SBD.answers', 'w') as out:
+        vectorStr = ""
+        for sets in featureVectorsTest:
+            for var in sets:
+                vectorStr += str(var) + "; "
+            vectorStr = vectorStr + "\n"
+
+        out.write(vectorStr)
 
 
 if __name__ == "__main__":
