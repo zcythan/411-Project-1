@@ -28,6 +28,9 @@ class FeatExt:
                 vector[7] = 1
 
         #Gonna see if just using ASCII representation is good enough.
+        vector[0] = hash(vector[0]) % (2 ** 31)
+        vector[1] = hash(vector[1]) % (2 ** 31)
+        '''
         intL = ""
         intR = ""
 
@@ -46,7 +49,7 @@ class FeatExt:
             vector[1] = int(intR)
         else:
             vector[1] = 0
-
+        '''
         if boolz:
             vectorStr = ""
             for i, var in enumerate(vector):
@@ -140,8 +143,10 @@ def main():
     magicTree.fit(featureVectorsTrain, featureLabelsTrain)
 
     #needs to take in one at a time and will return an integer
-    #prediction = magicTree.predict(featureLabelsTest[0])
-    #print("Prediction: " + str(prediction))
+    prediction = magicTree.predict(featureLabelsTest)
+    with open('Predict.answers', 'w') as out:
+        for i in prediction:
+            out.write(i + "\n")
 
 
 if __name__ == "__main__":
