@@ -27,7 +27,7 @@ class FeatExt:
             if abr in vector[0]:
                 vector[7] = 1
 
-        #The modulo is important, my first attempt was generating numbers that exceeded the 32 bit limit. lol.
+        #Limiting this is important, my first attempt was generating numbers that exceeded the 32 bit limit. lol.
         vector[0] = hash(vector[0]) % (2 ** 31)
         vector[1] = hash(vector[1]) % (2 ** 31)
         return vector
@@ -108,7 +108,7 @@ class AccCalc:
             else:
                 wrong += 1
 
-        return format((correct / (correct+wrong)) * 100 , '.2f')
+        return format((correct / (correct+wrong)) * 100, '.2f')
 
 def main():
     extractorTrain = FeatExt("SBD.train")
