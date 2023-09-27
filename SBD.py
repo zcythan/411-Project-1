@@ -1,12 +1,14 @@
+from sklearn.tree import DecisionTreeClassifier
 
 class FeatExt:
     def __init__(self, name):
         self.__fileName = name
+        self.__featVectors = []
 
     @staticmethod
-    def __analyzeRL(vectorRL):
+    def __analyzeRL(vectorRL, boolz):
         # Abbreviation means it do not in fact be da end of da sentence
-        abbrev = ["Dr", "Rep", "U.S", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
+        abbrev = ["Dr", "Rep", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
         # [Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
         vector = [vectorRL[0], vectorRL[1], 0, 0, 0, 0, 0, 0]
 
@@ -18,15 +20,22 @@ class FeatExt:
             vector[3] = 1
         if vector[0] and vector[1][0].isupper():
             vector[4] = 1
+        vector[5] = len(vector[0])
+        vector[6] = len(vector[1])
+        for abr in abbrev:
+            if abr in vector[0]:
+                vector[7] = 1
 
-        vectorStr = ""
-        for i, var in enumerate(vector):
-            if type(var) is int:
-                vectorStr += str(var) + "; "
-                continue
-            vectorStr += var + "; "
+        if boolz:
+            vectorStr = ""
+            for i, var in enumerate(vector):
+                if type(var) is int:
+                    vectorStr += str(var) + "; "
+                    continue
+                vectorStr += var + "; "
 
-        return vectorStr
+            return vectorStr
+        return vector
 
     @staticmethod
     def __extractRL(line, nextLine):
@@ -63,6 +72,7 @@ class FeatExt:
             with open('SBD.answers', 'w') as out:
                 prevLine = ""
                 check = False
+                #checking to see if TOK line may have word after period in it.
                 for line in file:
                     skip = True
                     chkLine = line.replace("TOK", "")
@@ -73,12 +83,14 @@ class FeatExt:
                     if skip:
                         continue
                     if check:
-                        out.write(self.__analyzeRL(self.__extractRL(prevLine, line)) + '\n')
-                        #out.write(self.__interpret(prevLine, line) + '\n')
+                        out.write(self.__analyzeRL(self.__extractRL(prevLine, line), True) + '\n')
+                        self.__featVectors.append(self.__analyzeRL(self.__extractRL(prevLine, line), False))
                         check = False
                     if '.' in line and "TOK" not in line:
                         prevLine = line
                         check = True
+
+        return self.__featVectors
 
 class AccCalc:
     def __init__(self):
@@ -87,7 +99,7 @@ class AccCalc:
 def main():
     print("Hello world")
     extractor = FeatExt("SBD.train")
-    extractor.readFile()
+    print(len(extractor.readFile()))
 
 
 if __name__ == "__main__":
