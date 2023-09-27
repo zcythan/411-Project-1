@@ -20,15 +20,15 @@ class FeatExt:
                 j = 0
                 val = ""
                 prevCh = ''
+                #substringing right of period
                 for ch in nextLine:
                     if ch == " " and prevCh.isalpha():
                         vector[1] = val
                         break
-                    if not ch.isalpha():
-                        continue
-                    val = val + nextLine[j]
-                    j = j + 1
                     prevCh = ch
+                    if ch.isalpha():
+                        val = val + nextLine[j]
+                    j = j + 1
 
             #elif char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
         if len(vector[0]) < 3:
@@ -55,6 +55,14 @@ class FeatExt:
                 prevLine = ""
                 check = False
                 for line in file:
+                    skip = True
+                    chkLine = line.replace("TOK", "")
+                    for char in chkLine:
+                        if char.isalpha():
+                            skip = False
+                            break
+                    if skip:
+                        continue
                     if check:
                         out.write(self.__interpret(prevLine, line) + '\n')
                         check = False
