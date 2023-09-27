@@ -107,8 +107,30 @@ class AccCalc:
                 correct += 1
             else:
                 wrong += 1
-
+        #2 decimals just seemed right
         return format((correct / (correct+wrong)) * 100, '.2f')
+
+def formatOutput(testFile, predLabels):
+    with open('SBD.test.out', 'w') as out:
+        with open(testFile, 'r') as file:
+            i = 0
+            for line in file:
+                if "TOK" in line:
+                    out.write(line)
+                    continue
+                else:
+                    if "NEOS" in line:
+                        line = line.replace("NEOS", "~~")
+                    if "EOS" in line and "NEOS" not in line and predLabels[i] == 0:
+                        line = line.replace("EOS", "~~")
+                    if predLabels[i] == 1:
+                        line = line.replace("~~", "EOS")
+                    if predLabels[i] == 0:
+                        line = line.replace("~~", "NEOS")
+                    out.write(line)
+                    if i != (len(predLabels)-1):
+                        i += 1
+                print(i)
 
 def main():
     extractorTrain = FeatExt("SBD.train")
@@ -123,7 +145,8 @@ def main():
     prediction = magicTree.predict(featureVectorsTest).tolist()
     #Compare our predicted labels with the actual labels from test.
     acc = AccCalc(prediction, featureLabelsTest)
-    print(acc.getAccuracy() + "% correct")
+    print(acc.getAccuracy() + "% accurate")
+    formatOutput("SBD.test", prediction)
 
     #Stuff that will be removed before submission
     with open('Predict.answers', 'w') as out:
