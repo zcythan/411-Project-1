@@ -3,10 +3,10 @@ class FeatExt:
     def __init__(self, name):
         self.__fileName = name
 
-
     @staticmethod
     def __analyzeRL(vectorRL):
-
+        # Abbreviation means it do not in fact be da end of da sentence
+        abbrev = ["Dr", "Rep", "U.S", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
         # [Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
         vector = [vectorRL[0], vectorRL[1], 0, 0, 0, 0, 0, 0]
 
@@ -30,10 +30,6 @@ class FeatExt:
 
     @staticmethod
     def __extractRL(line, nextLine):
-        #Abbrivation means it do not in fact be da end of da sentence
-        abbrev = ["Dr", "Rep", "U.S", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
-        #[Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
-        #vector = ["null", "null", 0, 0, 0, 0, 0, 0]
         vector = ["null", "null"]
 
         for i, char in enumerate(line):
@@ -60,24 +56,6 @@ class FeatExt:
                         val = val + nextLine[j]
                     j = j + 1
 
-            #elif char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
-        '''
-        if len(vector[0]) < 3:
-            vector[2] = 1
-        else:
-            vector[2] = 0
-        if vector[0] and vector[0][0].isupper():
-            vector[3] = 1
-        if vector[0] and vector[1][0].isupper():
-            vector[4] = 1
-
-        vectorStr = ""
-        for i, var in enumerate(vector):
-            if type(var) is int:
-                vectorStr += str(var) + "; "
-                continue
-            vectorStr += var + "; "
-        '''
         return vector
 
     def readFile(self):
