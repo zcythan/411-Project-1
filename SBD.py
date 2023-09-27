@@ -3,9 +3,39 @@ class FeatExt:
     def __init__(self, name):
         self.__fileName = name
 
+
     @staticmethod
-    def __interpret(line, nextLine):
-        vector = ["null", "null", 0, 0, 0]
+    def __analyzeRL(vectorRL):
+
+        # [Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
+        vector = [vectorRL[0], vectorRL[1], 0, 0, 0, 0, 0, 0]
+
+        if len(vector[0]) < 3:
+            vector[2] = 1
+        else:
+            vector[2] = 0
+        if vector[0] and vector[0][0].isupper():
+            vector[3] = 1
+        if vector[0] and vector[1][0].isupper():
+            vector[4] = 1
+
+        vectorStr = ""
+        for i, var in enumerate(vector):
+            if type(var) is int:
+                vectorStr += str(var) + "; "
+                continue
+            vectorStr += var + "; "
+
+        return vectorStr
+
+    @staticmethod
+    def __extractRL(line, nextLine):
+        #Abbrivation means it do not in fact be da end of da sentence
+        abbrev = ["Dr", "Rep", "U.S", "Mr", "St", "Pres", "Ald", "Prof", "Gen", "Sen", "Gov"]
+        #[Left word, Right word, L < 3, L capital, R capital, L length, R length, is L on list of abbreviations?]
+        #vector = ["null", "null", 0, 0, 0, 0, 0, 0]
+        vector = ["null", "null"]
+
         for i, char in enumerate(line):
             if char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
                 j = i - 1
@@ -31,6 +61,7 @@ class FeatExt:
                     j = j + 1
 
             #elif char == '.' and (i + 1 < len(line)) and line[i+1] == " ":
+        '''
         if len(vector[0]) < 3:
             vector[2] = 1
         else:
@@ -46,8 +77,8 @@ class FeatExt:
                 vectorStr += str(var) + "; "
                 continue
             vectorStr += var + "; "
-
-        return vectorStr
+        '''
+        return vector
 
     def readFile(self):
         with open(self.__fileName, 'r') as file:
@@ -64,7 +95,8 @@ class FeatExt:
                     if skip:
                         continue
                     if check:
-                        out.write(self.__interpret(prevLine, line) + '\n')
+                        out.write(self.__analyzeRL(self.__extractRL(prevLine, line)) + '\n')
+                        #out.write(self.__interpret(prevLine, line) + '\n')
                         check = False
                     if '.' in line and "TOK" not in line:
                         prevLine = line
