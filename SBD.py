@@ -136,7 +136,9 @@ def main():
     featureLabels = extractor.getLabels
     magicTree = DecisionTreeClassifier()
     magicTree.fit(featureVectors, featureLabels)
-    #magicTree.predict(testdata)
+
+    #needs to take in one at a time and will return an integer
+    #prediction = magicTree.predict(testdata)
 
     print(len(extractor.readFile()))
 
