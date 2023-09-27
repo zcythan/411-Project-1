@@ -4,6 +4,7 @@ class FeatExt:
     def __init__(self, name):
         self.__fileName = name
         self.__featVectors = []
+        self.__featLabels = []
 
     @staticmethod
     def __analyzeRL(vectorRL, boolz):
@@ -26,16 +27,43 @@ class FeatExt:
             if abr in vector[0]:
                 vector[7] = 1
 
+        #Gonna see if just using ASCII representation is good enough.
+        intL = ""
+        intR = ""
+
+        for char in vector[0]:
+            temp = ord(char)
+            intL = intL + str(temp)
+        if intL.isdigit():
+            vector[0] = int(intL)
+        else:
+            vector[0] = 0
+
+        for char in vector[1]:
+            temp = ord(char)
+            intR = intR + str(temp)
+        if intR.isdigit():
+            vector[1] = int(intR)
+        else:
+            vector[1] = 0
+
         if boolz:
             vectorStr = ""
             for i, var in enumerate(vector):
                 if type(var) is int:
                     vectorStr += str(var) + "; "
                     continue
-                vectorStr += var + "; "
+                vectorStr += str(var) + "; "
 
             return vectorStr
         return vector
+
+    @staticmethod
+    def __outcome(line):
+        if "EOS" in line and "NEOS" not in line:
+            return 1
+        else:
+            return 0
 
     @staticmethod
     def __extractRL(line, nextLine):
@@ -67,6 +95,10 @@ class FeatExt:
 
         return vector
 
+    @property
+    def getLabels(self):
+        return self.__featLabels
+
     def readFile(self):
         with open(self.__fileName, 'r') as file:
             with open('SBD.answers', 'w') as out:
@@ -83,8 +115,9 @@ class FeatExt:
                     if skip:
                         continue
                     if check:
-                        out.write(self.__analyzeRL(self.__extractRL(prevLine, line), True) + '\n')
+                        out.write(str(self.__outcome(prevLine)) + " " + self.__analyzeRL(self.__extractRL(prevLine, line), True) + '\n')
                         self.__featVectors.append(self.__analyzeRL(self.__extractRL(prevLine, line), False))
+                        self.__featLabels.append(self.__outcome(prevLine))
                         check = False
                     if '.' in line and "TOK" not in line:
                         prevLine = line
@@ -99,6 +132,12 @@ class AccCalc:
 def main():
     print("Hello world")
     extractor = FeatExt("SBD.train")
+    featureVectors = extractor.readFile()
+    featureLabels = extractor.getLabels
+    magicTree = DecisionTreeClassifier()
+    magicTree.fit(featureVectors, featureLabels)
+    #magicTree.predict(testdata)
+
     print(len(extractor.readFile()))
 
 
