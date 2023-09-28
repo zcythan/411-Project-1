@@ -1,5 +1,4 @@
-
-'''
+"""
 
 with open('Predict.answers', 'w') as out:
     for i in prediction:
@@ -18,4 +17,4 @@ with open('SBD.answers', 'w') as out:
 
     out.write(vectorStr)
 
-    '''
+"""
