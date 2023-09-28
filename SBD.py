@@ -130,6 +130,7 @@ def formatOutput(testFile, predLabels):
                         i += 1
 
 def main():
+    #for the command line input
     if len(sys.argv) < 3:
         print("Too few input arguments")
         return
@@ -147,10 +148,6 @@ def main():
     #Compare our predicted labels with the actual labels from test.
     print(getAccuracy(prediction, featureLabelsTest) + "% accurate")
     formatOutput("SBD.test", prediction)
-
-
-
-
 
 
 if __name__ == "__main__":
