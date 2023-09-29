@@ -24,6 +24,7 @@ class FeatExt:
             vector[3] = 1
         if vector[0] and vector[1][0].isupper():
             vector[4] = 1
+
         vector[6] = len(vector[0])
         vector[7] = len(vector[1])
         for abr in abbrev:
@@ -113,15 +114,15 @@ def formatOutput(testFile, predLabels):
         with open(testFile, 'r') as file:
             i = 0
             for line in file:
-                if "TOK" in line:
+                if "TOK" in line:  # if it's a tok line copy it
                     out.write(line)
                     continue
                 else:
-                    if "NEOS" in line:
+                    if "NEOS" in line:  # if it has a label then replace it with ~~ for later
                         line = line.replace("NEOS", "~~")
                     if "EOS" in line and "NEOS" not in line:
                         line = line.replace("EOS", "~~")
-                    if predLabels[i] == 1:
+                    if predLabels[i] == 1:  # swap the ~~ with the label from the prediction data
                         line = line.replace("~~", "EOS")
                     if predLabels[i] == 0:
                         line = line.replace("~~", "NEOS")
