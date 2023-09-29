@@ -9,6 +9,7 @@ class Collocationator:
         self._unigramFreqs = self.__getUniFreqs()
         self._bigramFreqs = self.__getBiFreqs()
 
+    #count da unigrams
     def __getUniFreqs(self):
         uniDict = {}
         for word in self._unigrams:
@@ -38,6 +39,7 @@ class Collocationator:
                 for e in elements:
                     if len(e) < 2 and not e.isalpha():  # no symbols allowed
                         continue
+                    # I think they need to be lowercase to reduce duplicates? I was getting a lot of duplicates.
                     unigrams.append(e.lower())
 
             return unigrams
@@ -77,9 +79,9 @@ class ChiSquare(Collocationator):
         total_bigrams = sum(self._bigramFreqs.values())
         for gram, freq in self._bigramFreqs.items():
             expFreq = (self._unigramFreqs[gram[0]] * self._unigramFreqs[gram[1]])/len(self._bigrams)  # expected frequency
-            #dividing bad 0 is bad
+            #dividing 0 is bad
             if expFreq != 0:
-                self.__chiDict[gram] = ((freq - expFreq) ** 2)/expFreq
+                self.__chiDict[gram] = ((freq - expFreq) ** 2)/expFreq  # calculate the chi-square value
             else:
                 self.__chiDict[gram] = 0
 
