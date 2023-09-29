@@ -18,8 +18,7 @@ class Collocationator:
                 uniDict[word] = 1
         return uniDict
 
-        # get number of occurrences of specific bigram
-
+    #count da bigrams
     def __getBiFreqs(self):
         biDict = {}
         for tup in self._bigrams:
@@ -63,28 +62,28 @@ class Collocationator:
 class ChiSquare(Collocationator):
     def __init__(self, file):
         super().__init__(file)
+        self.__chiDict = {}
+        self.__solve()
 
     def print(self):
-        output = self.__solve()
-        for i, item in enumerate(output):
+        i = 0
+        for k, v in self.__chiDict.items():
             if i >= 20:
                 break
-            print(str(item[0]) + " " + str(item[1]))
+            print(str(k) + " " + str(v))
+            i += 1
 
     def __solve(self):
-        values = {}
         total_bigrams = sum(self._bigramFreqs.values())
         for gram, freq in self._bigramFreqs.items():
             expFreq = (self._unigramFreqs[gram[0]] * self._unigramFreqs[gram[1]])/len(self._bigrams)  # expected frequency
-            obvFreq = freq
             #dividing bad 0 is bad
             if expFreq != 0:
-                values[gram] = ((obvFreq - expFreq) ** 2)/expFreq
+                self.__chiDict[gram] = ((freq - expFreq) ** 2)/expFreq
             else:
-                values[gram] = 0
+                self.__chiDict[gram] = 0
 
-        return sorted(values.items(), key=lambda x: x[1], reverse=True)  # rewrite?
-
+        self.__chiDict = dict(sorted(self.__chiDict.items(), key=lambda x: x[1], reverse=True))
 
 class PMI(Collocationator):
     def __init__(self, file):
@@ -109,11 +108,19 @@ class PMI(Collocationator):
         self.__pmiDict = dict(sorted(self.__pmiDict.items(), key=lambda x: x[1], reverse=True))
 
 def main():
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print("Too few input arguments")
         return
     #What's better than functions? Classes!
-    col = PMI(sys.argv[1])
+    col = None
+    if sys.argv[2] == "chi-square":
+        col = ChiSquare(sys.argv[1])
+    elif sys.argv[2] == "PMI":
+        col = PMI(sys.argv[1])
+    else:
+        print("Invalid Input")
+        return
+
     col.print()
 
 
