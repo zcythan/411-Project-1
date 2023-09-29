@@ -1,5 +1,5 @@
 from sklearn.tree import DecisionTreeClassifier
-#no limitations on sys, let go
+#no limitations on sys, lets go
 import sys
 
 #I love modularization
