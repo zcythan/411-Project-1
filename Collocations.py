@@ -34,7 +34,7 @@ class Collocationator:
         with open(file, 'r') as data:
             unigrams = []
             for line in data:
-                elements = line.split()  # still a python moment
+                elements = line.split()  # python moment
                 size = len(unigrams)
                 for e in elements:
                     if len(e) < 2 and not e.isalpha():  # no symbols allowed
@@ -49,7 +49,7 @@ class Collocationator:
         with open(file, 'r') as data:
             bigrams = []
             for line in data:
-                elements = line.split()  # python moment
+                elements = line.split()  # still a python moment
                 for i in range(len(elements) - 1):
                     word = elements[i]
                     nextWord = elements[i + 1]
